@@ -11,6 +11,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.meet.activity.MainActivity;
+import com.example.meet.fragment.SettingFragment;
+
 
 public class LoginActivity extends AppCompatActivity {
     private TextView tv_main_title;//标题
@@ -36,7 +39,7 @@ public class LoginActivity extends AppCompatActivity {
         tv_back=findViewById(R.id.tv_back);
         //从activity_login.xml中获取的
         tv_register=findViewById(R.id.tv_register);
-        tv_find_psw=findViewById(R.id.tv_find_psw);
+
         btn_login=findViewById(R.id.btn_login);
         et_user_name=findViewById(R.id.et_user_name);
         et_psw=findViewById(R.id.et_psw);
@@ -65,9 +68,11 @@ public class LoginActivity extends AppCompatActivity {
                 //开始登录，获取用户名和密码 getText().toString().trim();
                 userName=et_user_name.getText().toString().trim();
                 psw=et_psw.getText().toString().trim();
-                //对当前用户输入的密码进行MD5加密再进行比对判断, MD5Utils.md5( ); psw 进行加密判断是否一致
+                Intent intent=new Intent(LoginActivity.this,MainActivity.class);
+                startActivityForResult(intent, 1);
 
-                // md5Psw ; spPsw 为 根据从SharedPreferences中用户名读取密码
+
+
                 // 定义方法 readPsw为了读取用户名，得到密码
 
                 // TextUtils.isEmpty
