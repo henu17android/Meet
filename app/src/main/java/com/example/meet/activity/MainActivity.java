@@ -21,8 +21,7 @@ import com.haibin.calendarview.CalendarView;
 public class MainActivity extends AppCompatActivity implements
         CalendarView.OnYearChangeListener,//宿主Activity实现接口，在fragment中实例化
         CalendarView.OnCalendarSelectListener,
-        NavHelper.OnTabChangeListener
-         {
+        NavHelper.OnTabChangeListener {
 
     private BottomNavigationView navigationView;
     private FragmentManager mFragmentManager;
@@ -68,10 +67,10 @@ public class MainActivity extends AppCompatActivity implements
 
         mFragmentManager = getSupportFragmentManager();
 
-        mNavHelper = new NavHelper<>(this,R.id.lay_container,mFragmentManager,this);
-        mNavHelper.add(R.id.navigation_checkItem,new NavHelper.Tab<Integer>(TaskFragment.class,R.id.navigation_checkItem))
-                .add(R.id.navigation_share,new NavHelper.Tab<Integer>(ShareFragment.class,R.id.navigation_share))
-                .add(R.id.navigation_set,new NavHelper.Tab<Integer>(SettingFragment.class,R.id.navigation_set));
+        mNavHelper = new NavHelper<>(this, R.id.lay_container, mFragmentManager, this);
+        mNavHelper.add(R.id.navigation_checkItem, new NavHelper.Tab<Integer>(TaskFragment.class, R.id.navigation_checkItem))
+                .add(R.id.navigation_share, new NavHelper.Tab<Integer>(ShareFragment.class, R.id.navigation_share))
+                .add(R.id.navigation_set, new NavHelper.Tab<Integer>(SettingFragment.class, R.id.navigation_set));
 
         navigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
@@ -79,12 +78,9 @@ public class MainActivity extends AppCompatActivity implements
         //navigation默认选中任务界面
         navigationView.setSelectedItemId(menu.getItem(1).getItemId());
         //触发首次选中TaskFragment
-        menu.performIdentifierAction(R.id.navigation_checkItem,0);
+        menu.performIdentifierAction(R.id.navigation_checkItem, 0);
 
     }
-
-
-
 
 
     @Override
@@ -93,8 +89,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
-
-     //fragment切换时设置
+    //fragment切换时设置
     @Override
     public void onTabChange(NavHelper.Tab newTab, NavHelper.Tab oldTab) {
 
@@ -102,9 +97,11 @@ public class MainActivity extends AppCompatActivity implements
 
 
     @Override
-    public void onCalendarOutOfRange(Calendar calendar) { }
+    public void onCalendarOutOfRange(Calendar calendar) {
+    }
 
     @Override
-    public void onCalendarSelect(Calendar calendar, boolean isClick) { }
-         }
+    public void onCalendarSelect(Calendar calendar, boolean isClick) {
+    }
+}
 
