@@ -4,15 +4,46 @@ import android.widget.CheckBox;
 
 public class Task {
 
-    private String content;
-    private CheckBox checkBox;
+    private int id;
+    private String content; //任务内容
+    private CheckBox checkBox;  //
     private boolean isFinish = false;
     private boolean isDelete = false;
+    private long toDoTime;
+    private long createTime;
+
+    public void setCreatTime(long creatTime) {
+        this.createTime = creatTime;
+    }
+
+    public long getCreatTime() {
+
+        return createTime;
+    }
+
+    public long getToDoTime() {
+        return toDoTime;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setToDoTime(long toDoTime) {
+        this.toDoTime = toDoTime;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public Task(String content) {
         this.content = content;
     }
 
+    public Task() {
+
+    }
     public String getContent() {
         return content;
     }

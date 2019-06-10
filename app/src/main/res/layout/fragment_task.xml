@@ -7,7 +7,8 @@
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
     android:orientation="vertical"
-    tools:context=".fragment.TaskFragment">
+    tools:context=".fragment.TaskFragment"
+    android:id="@+id/fragment_task">
 
     <RelativeLayout
         android:id="@+id/rl_tool"
