@@ -1,0 +1,61 @@
+package com.example.meet.bean;
+
+import android.content.Context;
+
+import org.litepal.LitePal;
+
+import java.util.List;
+
+/**
+ * 对Task的数据库操作进行封装
+ * @author 祁梦楠的陈先生
+ */
+public class TaskLab {
+    private static TaskLab sTaskLab;
+    private Context mContext;
+    private int mTaskId = 0; //指示插入的task在表中的行号
+
+    public static TaskLab get(Context context) {
+        if (sTaskLab == null) {
+            sTaskLab = new TaskLab(context);
+        }
+        return sTaskLab;
+    }
+
+    private TaskLab(Context context) {
+        this.mContext = context;
+        mTaskId = getRowCount();
+    }
+
+    private int getRowCount() {
+        List<Task> tasks = LitePal.findAll(Task.class);
+        int count = tasks.size();
+        return count;
+    }
+
+    public boolean addTask(Task task) {
+        mTaskId++;
+        task.setId(mTaskId);
+        return task.save();
+    }
+
+    public int deleteTaskById(int id) {
+        mTaskId--;
+        return LitePal.delete(Task.class, id);
+
+    }
+
+    public void updateTask(Task task) {
+        Task task1 = LitePal.find(Task.class, task.getId());
+        task1.setId(task.getId());
+        task1.setContent(task.getContent());
+        task1.setCreateTime(task.getCreateTime());
+        task1.setFinish(task.isFinish());
+        task1.setToDoTime(task.getToDoTime());
+        task1.save();
+    }
+
+    public List<Task> findAll() {
+        return LitePal.findAll(Task.class);
+    }
+}

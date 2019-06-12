@@ -8,7 +8,8 @@ import java.util.ListIterator;
 
 public class Task extends LitePalSupport {
 
-    private int id;
+
+    private int taskId;
     private String content; //任务内容
     private boolean isFinish = false;
     private long toDoTime;
@@ -28,7 +29,7 @@ public class Task extends LitePalSupport {
     }
 
     public int getId() {
-        return id;
+        return taskId;
     }
 
     public void setToDoTime(long toDoTime) {
@@ -36,7 +37,7 @@ public class Task extends LitePalSupport {
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.taskId = id;
     }
 
     public Task(String content) {
