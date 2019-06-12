@@ -12,11 +12,11 @@ public class Task {
     private long toDoTime;
     private long createTime;
 
-    public void setCreatTime(long creatTime) {
-        this.createTime = creatTime;
+    public void setCreateTime(long createTime) {
+        this.createTime = createTime;
     }
 
-    public long getCreatTime() {
+    public long getCreateTime() {
 
         return createTime;
     }
@@ -44,6 +44,7 @@ public class Task {
     public Task() {
 
     }
+
     public String getContent() {
         return content;
     }
