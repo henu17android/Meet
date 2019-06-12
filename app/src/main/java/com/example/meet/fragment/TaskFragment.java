@@ -2,8 +2,12 @@ package com.example.meet.fragment;
 
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -37,6 +41,7 @@ import com.haibin.calendarview.Calendar;
 import com.haibin.calendarview.CalendarLayout;
 import com.haibin.calendarview.CalendarView;
 
+import org.litepal.LitePal;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
@@ -60,13 +65,8 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
     private int mYear;
     private RecyclerView mRecyclerView;
     private FloatingActionButton addFab;
-    private PopupWindow popEdit;
-    //声明PopupWindow对应的视图
-    private View popupView;
-    private EditText addTaskEdit;
-    private ImageButton addTaskbtn;
-    //声明平移动画
-    private TranslateAnimation animation;
+    private List<Task> taskList = new ArrayList<>();
+    private  TaskAdapter taskAdapter;
 
 
 
@@ -87,7 +87,7 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        taskList();
+
     }
 
     @Override
@@ -95,19 +95,38 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_task,container,false);
         initCalenderView(rootView);
-        mRecyclerView = rootView.findViewById(R.id.recyclerView);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
+
         addFab = rootView.findViewById(R.id.fab);
-        TaskAdapter taskAdapter = new TaskAdapter(taskList(),mActivity);
-        mRecyclerView.setAdapter(taskAdapter);
+        taskAdapter = new TaskAdapter(taskList,mActivity);
 
         addFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showPopEdit();
-                lightOff();
+                showAddDialog();
             }
         });
+
+        //Calendar点击事件
+        mCalenderView.setOnCalendarSelectListener(new CalendarView.OnCalendarSelectListener() {
+            @Override
+            public void onCalendarOutOfRange(Calendar calendar) {
+
+            }
+
+            @Override
+            public void onCalendarSelect(Calendar calendar, boolean isClick) {
+                mTextLunar.setVisibility(View.VISIBLE);
+                mTextYear.setVisibility(View.VISIBLE);
+                mTextMonthDay.setText(calendar.getMonth()+"月"+calendar.getDay()+"日");
+                mTextLunar.setText(calendar.getLunar());
+                mYear = calendar.getYear();
+
+                //查找选中日期下的任务列表
+                taskList = LitePal.where("toDoTime = ?",String.valueOf(calendar.getDay())).find(Task.class);
+                onResume();
+            }
+        });
+
 
         return  rootView;
 
@@ -148,31 +167,12 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
             }
         });
 
-        //点击改变右上角日期
-        CalendarSelectListener = new CalendarView.OnCalendarSelectListener() {
-            @Override
-            public void onCalendarOutOfRange(Calendar calendar) {
-            }
-
-            @Override
-            public void onCalendarSelect(Calendar calendar, boolean isClick) {
-                mTextLunar.setVisibility(View.VISIBLE);
-                mTextYear.setVisibility(View.VISIBLE);
-                mTextMonthDay.setText(calendar.getMonth()+"月"+calendar.getDay()+"日");
-                mTextLunar.setText(calendar.getLunar());
-                mYear = calendar.getYear();
-            }
-        };
-
-        mCalenderView.setOnCalendarSelectListener(CalendarSelectListener);
-
-        YearChangeListener = new CalendarView.OnYearChangeListener() {
+        mCalenderView.setOnYearChangeListener(new CalendarView.OnYearChangeListener() {
             @Override
             public void onYearChange(int year) {
                 mTextMonthDay.setText(String.valueOf(year));
             }
-        };
-        mCalenderView.setOnYearChangeListener(YearChangeListener);
+        });
 
         mTextYear.setText(String.valueOf(mCalenderView.getCurYear()));
         mYear = mCalenderView.getCurYear();
@@ -218,92 +218,50 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
     }
 
 
-    private List<Task> taskList() {
-        ArrayList<Task> tasks = new ArrayList<>();
-        for (int i = 0;i<10;i++) {
-            Task task = new Task("今天真开心"+i);
-            tasks.add(task);
-        }
-        return tasks;
 
-    }
 
     /**
-     * 弹出编辑框
+     * 点击添加按钮弹出对话框
      */
-    private void showPopEdit() {
-        if (popEdit == null) {
-        popupView = getLayoutInflater().inflate(R.layout.pop_add_edit,null);
-        addTaskEdit = popupView.findViewById(R.id.add_editText);
-        addTaskbtn = popupView.findViewById(R.id.add);
-        popEdit = new PopupWindow(popupView,ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        popEdit.setOnDismissListener(new PopupWindow.OnDismissListener() {
-                @Override
-                public void onDismiss() {
-                   lightOn();
-                }
-            });
-        }
+    private void showAddDialog() {
+        LayoutInflater layoutInflater = LayoutInflater.from(mActivity);
+        View addTaskDialog = layoutInflater.inflate(R.layout.add_dialog,null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+        builder.setView(addTaskDialog);
+        builder.setTitle("  ");
 
-
-        //设置背景图片，让动画起效
-        popEdit.setBackgroundDrawable(new BitmapDrawable());
-        popEdit.setFocusable(true);
-
-        //设置点击popupWindow外 editText消失
-        popEdit.setOutsideTouchable(true);
-
-        //平移动画相对于手机屏幕的底部开始，x轴不变，y轴从1变到0
-        animation = new TranslateAnimation(Animation.RELATIVE_TO_PARENT,0,
-                Animation.RELATIVE_TO_PARENT,0,Animation.RELATIVE_TO_PARENT,1,
-                Animation.RELATIVE_TO_PARENT,0);
-        animation.setInterpolator(new AccelerateInterpolator());
-        animation.setDuration(200);
-        popupView.startAnimation(animation);
-
-        addTaskbtn.setOnClickListener(new View.OnClickListener() {
+        final EditText addText = addTaskDialog.findViewById(R.id.add_task_text);
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(DialogInterface dialog, int which) {
+                //添加任务
+                Task task = new Task(addText.getText().toString());
+                task.setCreateTime(System.currentTimeMillis());
+                task.setToDoTime(mCalenderView.getCurDay());
+                task.save();
+                taskList.add(task);
+                taskList.notify();
+            }
+        });
+
+        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
 
             }
         });
 
-        //设置popupWindow的显示位置
-        popEdit.showAtLocation(TaskFragment.this.rootView.findViewById(R.id.fragment_task),
-                Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL,0,0);
-        //点击之后设置popupWindow销毁
-        if (popEdit.isShowing()) {
-            popEdit.dismiss();
-            lightOn();
-        }
-//
-//        if (popEdit != null && popEdit.isShowing()) {
-//            return;
-//        }
-//
-//        popEdit.showAsDropDown(addTaskEdit);
-    }
-
-    /**
-     * 屏幕亮度变暗
-     */
-    private void lightOff() {
-        WindowManager.LayoutParams layoutParams = getActivity().getWindow().getAttributes();
-        layoutParams.alpha = 0.3f;
-        getActivity().getWindow().setAttributes(layoutParams);
-
-    }
-
-    /**
-     * 亮度恢复正常
-     */
-    private void lightOn() {
-        WindowManager.LayoutParams layoutParams = getActivity().getWindow().getAttributes();
-        layoutParams.alpha = 1f;
-        getActivity().getWindow().setAttributes(layoutParams);
-
+        builder.create();
+        builder.show();
     }
 
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        mRecyclerView = rootView.findViewById(R.id.recyclerView);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
+        mRecyclerView.setAdapter(taskAdapter);
+
+    }
 }

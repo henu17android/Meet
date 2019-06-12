@@ -18,6 +18,8 @@ import com.example.meet.fragment.TaskFragment;
 import com.haibin.calendarview.Calendar;
 import com.haibin.calendarview.CalendarView;
 
+import org.litepal.LitePal;
+
 public class MainActivity extends AppCompatActivity implements
         CalendarView.OnYearChangeListener,//宿主Activity实现接口，在fragment中实例化
         CalendarView.OnCalendarSelectListener,
@@ -60,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements
         actionBar.hide();
 
         initView();
+        LitePal.initialize(this);
 
     }
 
