@@ -89,7 +89,7 @@ public class TaskDatabase  {
         values.put(TaskColumns.IS_FINISH,task.isFinish());
         values.put(TaskColumns.TO_DO_TIME,task.getToDoTime());
         values.put(TaskColumns.USER_ID,userID);
-        values.put(TaskColumns.CREATE_TIME,task.getCreatTime());
+        values.put(TaskColumns.CREATE_TIME,task.getCreateTime());
         result = mSQLiteDatabase.insert(TaskDatabase.DB_TABLE_TASK,null,values);
         mSQLiteDatabase.close();
         return  result;
@@ -101,7 +101,7 @@ public class TaskDatabase  {
         return result;
     }
 
-    private Task fetchTask (int taskId) {
+    private Task getTask (int taskId) {
         Cursor cursor = mSQLiteDatabase.query(DB_CREATE_TABLE_TASK,
                 null,TaskColumns._ID + "=?",new String[]{taskId + ""},
                 null,null,null);
@@ -109,7 +109,7 @@ public class TaskDatabase  {
         Task task = new Task();
         task.setId(cursor.getInt(TaskColumns._ID_INDEX));
         task.setContent(cursor.getString(TaskColumns.TASK_CONTENT_INDEX));
-        task.setCreatTime(cursor.getLong(TaskColumns.CREATE_TIME_INDEX));
+        task.setCreateTime(cursor.getLong(TaskColumns.CREATE_TIME_INDEX));
         task.setToDoTime(cursor.getLong(TaskColumns.TO_DO_TIME_INDEX));
         boolean isFinish = cursor.getLong(TaskColumns.IS_FINISH_INDEX) > 0;
         task.setFinish(isFinish);
@@ -117,16 +117,16 @@ public class TaskDatabase  {
         return task;
     }
 
-    private List<Task> fetchAllTask (long createTime) {
+    private List<Task> getAllTask (long toDoTime) {
         Cursor cursor = mSQLiteDatabase.query(DB_CREATE_TABLE_TASK,
-                null,TaskColumns.CREATE_TIME + "=?",new String[]{createTime + ""},
-                null,null,TaskColumns.CREATE_TIME + "DESC");
+                null,TaskColumns.TO_DO_TIME + "=?",new String[]{toDoTime + ""},
+                null,null,TaskColumns.TO_DO_TIME + "DESC");
         List<Task> taskList = new ArrayList<>();
         while (cursor.moveToNext()) {
             Task task = new Task();
             task.setId(cursor.getInt(TaskColumns._ID_INDEX));
             task.setContent(cursor.getString(TaskColumns.TASK_CONTENT_INDEX));
-            task.setCreatTime(cursor.getLong(TaskColumns.CREATE_TIME_INDEX));
+            task.setCreateTime(cursor.getLong(TaskColumns.CREATE_TIME_INDEX));
             task.setToDoTime(cursor.getLong(TaskColumns.TO_DO_TIME_INDEX));
             boolean isFinish = cursor.getLong(TaskColumns.IS_FINISH_INDEX) > 0;
             task.setFinish(isFinish);
@@ -136,13 +136,19 @@ public class TaskDatabase  {
         return taskList;
     }
 
-    public long upDateContent(Task task) {
+    public long updateContent(Task task) {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(TaskColumns.TASK_CONTENT,task.getContent());
-        values.put(TaskColumns.IS_FINISH,task.isDelete());
-        values.put(TaskColumns.TO_DO_TIME,task.getToDoTime());
         long result = db.update(TaskDatabase.DB_TABLE_TASK,values,TaskColumns._ID +"=?",new String[]{task.getId() + ""});
+        return result;
+    }
+
+    public long updateTodoTime(Task task) {
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(TaskColumns.TO_DO_TIME,task.getToDoTime());
+        long result = db.update(DB_TABLE_TASK,values,TaskColumns._ID + "=?",new String[]{task.getId() + ""});
         return result;
     }
 
