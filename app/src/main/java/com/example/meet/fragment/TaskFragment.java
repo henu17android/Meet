@@ -12,6 +12,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -250,7 +251,7 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
      */
     private void showAddDialog() {
         LayoutInflater layoutInflater = LayoutInflater.from(mActivity);
-        View addTaskDialog = layoutInflater.inflate(R.layout.add_dialog, null);
+        View addTaskDialog = layoutInflater.inflate(R.layout.add_dialog_2, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
         builder.setView(addTaskDialog);
         builder.setTitle("添加新任务");
@@ -277,6 +278,7 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
 
         builder.create();
         builder.show();
+
     }
 
     /**
