@@ -13,7 +13,7 @@ import java.util.List;
 public class TaskLab {
     private static TaskLab sTaskLab;
     private Context mContext;
-    private int mTaskId = 0; //指示插入的task在表中的行号
+
 
     public static TaskLab get(Context context) {
         if (sTaskLab == null) {
@@ -24,30 +24,24 @@ public class TaskLab {
 
     private TaskLab(Context context) {
         this.mContext = context;
-        mTaskId = getRowCount();
     }
 
     private int getRowCount() {
-        List<Task> tasks = LitePal.findAll(Task.class);
-        int count = tasks.size();
+        int count = LitePal.count(Task.class);
         return count;
     }
 
     public boolean addTask(Task task) {
-        mTaskId++;
-        task.setId(mTaskId);
         return task.save();
     }
 
     public int deleteTaskById(int id) {
-        mTaskId--;
         return LitePal.delete(Task.class, id);
 
     }
 
     public void updateTask(Task task) {
         Task task1 = LitePal.find(Task.class, task.getId());
-        task1.setId(task.getId());
         task1.setContent(task.getContent());
         task1.setCreateTime(task.getCreateTime());
         task1.setFinish(task.isFinish());

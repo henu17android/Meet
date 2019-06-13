@@ -11,6 +11,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -50,6 +51,9 @@ import org.w3c.dom.Text;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class TaskFragment extends Fragment implements View.OnClickListener {
@@ -69,22 +73,20 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
     private int mYear;
     private RecyclerView mRecyclerView;
     private FloatingActionButton addFab;
-    private List<Task> mTaskList = new ArrayList<>();
-    private  TaskAdapter mTaskAdapter;
+    private List<Task> mTaskList;
+    private TaskAdapter mTaskAdapter;
     private int mSelectTime;
-
-
-
+    private ExecutorService mSingleThreadPool = Executors.newSingleThreadExecutor();
+    private Handler mHandler = new Handler();
     private OnFragmentInteractionListener mListener;
 
     //当与activity建立联系时调用
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mActivity = (MainActivity)context;
-        CalendarSelectListener = (CalendarView.OnCalendarSelectListener)context;
-        YearChangeListener = (CalendarView.OnYearChangeListener)context;
-
+        mActivity = (MainActivity) context;
+        CalendarSelectListener = (CalendarView.OnCalendarSelectListener) context;
+        YearChangeListener = (CalendarView.OnYearChangeListener) context;
     }
 
     @Override
@@ -96,19 +98,12 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.fragment_task,container,false);
+        rootView = inflater.inflate(R.layout.fragment_task, container, false);
         initCalenderView(rootView);
         mRecyclerView = rootView.findViewById(R.id.recyclerView);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
-        updateUI();
         addFab = rootView.findViewById(R.id.fab);
-        addFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showAddDialog();
-            }
-        });
-
+        addFab.setOnClickListener(this);
         //Calendar点击事件
         mCalenderView.setOnCalendarSelectListener(new CalendarView.OnCalendarSelectListener() {
             @Override
@@ -120,45 +115,42 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
             public void onCalendarSelect(Calendar calendar, boolean isClick) {
                 mTextLunar.setVisibility(View.VISIBLE);
                 mTextYear.setVisibility(View.VISIBLE);
-                mTextMonthDay.setText(calendar.getMonth()+"月"+calendar.getDay()+"日");
+                mTextMonthDay.setText(calendar.getMonth() + "月" + calendar.getDay() + "日");
                 mTextLunar.setText(calendar.getLunar());
                 mYear = calendar.getYear();
-                mSelectTime = mYear+calendar.getMonth()+calendar.getDay();
-                Log.d(TAG,"mSelectTime:"+mSelectTime );
+                mSelectTime = mYear * 365 + calendar.getMonth() * 31 + calendar.getDay();
+                Log.d(TAG, "mSelectTime:" + mSelectTime);
                 //查找选中日期下的任务列表
-                mTaskList = LitePal.where("toDoTime = ?",String.valueOf(mSelectTime)).find(Task.class);
-                for (Task task : mTaskList) {
-                    Log.d(TAG,"content:-"+task.getContent() );
-                }
-                mTaskAdapter.setTaskList(mTaskList);
-                mTaskAdapter.notifyDataSetChanged();
-
+                mSingleThreadPool.execute(updateUIRunnable);
 
             }
         });
-
-
-        return  rootView;
+        return rootView;
 
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        updateUI();
+        mSingleThreadPool.execute(updateUIRunnable);
     }
 
-    private void updateUI() {
-        mTaskList = LitePal.where("toDoTime = ?",String.valueOf(mSelectTime)).find(Task.class);
-        if (mTaskAdapter == null) {
-            mTaskAdapter = new TaskAdapter(mTaskList,getActivity() );
-            mRecyclerView.setAdapter(mTaskAdapter);
-        } else {
-            mTaskAdapter.setTaskList(mTaskList);
-            mTaskAdapter.notifyDataSetChanged();
+
+    private Runnable updateUIRunnable = new Runnable() {
+        @Override
+        public void run() {
+            mTaskList = LitePal.where("toDoTime = ?", String.valueOf(mSelectTime)).find(Task.class);
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    mTaskAdapter = null;
+                    mTaskAdapter = new TaskAdapter(mTaskList, getActivity());
+                    mRecyclerView.setAdapter(mTaskAdapter);
+
+                }
+            });
         }
-        hideSoftKeyWord();
-    }
+    };
 
     @Override
     public void onDetach() {
@@ -180,8 +172,7 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
 
 
     /**
-     * @param view
-     * 初始化月历视图
+     * @param view 初始化月历视图
      */
     private void initCalenderView(View view) {
         mTextMonthDay = view.findViewById(R.id.tv_month_day);
@@ -194,7 +185,7 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
         mTextMonthDay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!mCalendarLayout.isExpand()){
+                if (!mCalendarLayout.isExpand()) {
                     mCalendarLayout.expand();
                     return;
                 }
@@ -223,11 +214,11 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
 
         mTextYear.setText(String.valueOf(mCalenderView.getCurYear()));
         mYear = mCalenderView.getCurYear();
-        mTextMonthDay.setText(mCalenderView.getCurMonth()+"月"+mCalenderView.getCurDay()+"日");
+        mTextMonthDay.setText(mCalenderView.getCurMonth() + "月" + mCalenderView.getCurDay() + "日");
         mTextLunar.setText("今日");
         mTextCurrentDay.setText(String.valueOf(mCalenderView.getCurDay()));
-        mSelectTime = mCalenderView.getCurYear()+mCalenderView.getCurMonth()+mCalenderView.getCurDay();
-        Log.d(TAG, "today:-"+mSelectTime);
+        mSelectTime = mCalenderView.getCurYear() * 365 + mCalenderView.getCurMonth() * 31 + mCalenderView.getCurDay();
+        Log.d(TAG, "today:-" + mSelectTime);
     }
 
     public void onButtonPressed(Uri uri) {
@@ -239,7 +230,13 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-
+        switch (v.getId()) {
+            case R.id.fab:
+                showAddDialog();//添加task的编辑框
+                break;
+            default:
+                break;
+        }
     }
 
     public interface OnFragmentInteractionListener {
@@ -248,14 +245,12 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
     }
 
 
-
-
     /**
      * 点击添加按钮弹出对话框
      */
     private void showAddDialog() {
         LayoutInflater layoutInflater = LayoutInflater.from(mActivity);
-        View addTaskDialog = layoutInflater.inflate(R.layout.add_dialog,null);
+        View addTaskDialog = layoutInflater.inflate(R.layout.add_dialog, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
         builder.setView(addTaskDialog);
         builder.setTitle("添加新任务");
@@ -268,9 +263,8 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
                 Task task = new Task(addText.getText().toString());
                 task.setCreateTime(System.currentTimeMillis());
                 task.setToDoTime(mSelectTime);
-                Log.d(TAG,"SelectTime Of task:"+task.getToDoTime() );
                 TaskLab.get(getActivity()).addTask(task);
-                updateUI();
+                mSingleThreadPool.execute(updateUIRunnable);
             }
         });
 
@@ -285,6 +279,9 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
         builder.show();
     }
 
+    /**
+     * 隐藏软键盘
+     */
     private void hideSoftKeyWord() {
         InputMethodManager imm = (InputMethodManager) getActivity()
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
