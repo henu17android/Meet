@@ -71,7 +71,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
 
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        private EditText contentView;
+        private TextView contentView;
         private CheckBox finishBox;
         //保存子项最外层的实例
         View taskView;

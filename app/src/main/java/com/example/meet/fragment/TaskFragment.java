@@ -130,20 +130,6 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
             }
         });
 
-
-        //点击编辑、长按删除
-       mTaskAdapter.setOnItemClickListener(new TaskAdapter.OnItemClickListener() {
-           @Override
-           public void onItemClick(View view, int position) {
-               Intent intent = new Intent(mActivity,EditTaskActivity.class);
-               startActivity(intent);
-           }
-
-           @Override
-           public void onItemLongClick(View view, int position) {
-
-           }
-       });
         return rootView;
 
     }
@@ -165,6 +151,19 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
                 public void run() {
                     mTaskAdapter = null;
                     mTaskAdapter = new TaskAdapter(mTaskList, getActivity());
+                    //点击编辑、长按删除
+                    mTaskAdapter.setOnItemClickListener(new TaskAdapter.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(View view, int position) {
+                            Intent intent = new Intent(mActivity,EditTaskActivity.class);
+                            startActivity(intent);
+                        }
+
+                        @Override
+                        public void onItemLongClick(View view, int position) {
+
+                        }
+                    });
                     mRecyclerView.setAdapter(mTaskAdapter);
 
                 }
