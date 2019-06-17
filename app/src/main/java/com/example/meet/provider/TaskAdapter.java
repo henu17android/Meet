@@ -9,9 +9,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import com.example.meet.R;
@@ -31,38 +33,32 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
     }
 
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int i) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int i) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.task_item_layout, parent, false);
         ViewHolder viewHolder = new ViewHolder(view);
+
         return viewHolder;
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, int i) {
+    public void onBindViewHolder(@NonNull final ViewHolder viewHolder, final int position) {
 
-        final Task task = taskList.get(i);
-        Log.d("onBindViewHolder", ""+(task==null)+"-"+task.getContent());
+        final Task task = taskList.get(position);
+        Log.d("onBindViewHolder", "" + (task == null) + "-" + task.getContent());
         viewHolder.contentView.setText(task.getContent());
         viewHolder.finishBox.setChecked(task.isFinish());
-        viewHolder.contentView.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                task.setContent(s.toString());
-                TaskLab.get(mContext).updateTask(task);
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
+        if (mOnItemClickListener != null) {
+            viewHolder.contentView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mOnItemClickListener.onItemClick(viewHolder.itemView,position);
+                }
+            });
+        }
 
         viewHolder.finishBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -75,8 +71,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
 
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        EditText contentView;
-        CheckBox finishBox;
+        private EditText contentView;
+        private CheckBox finishBox;
         //保存子项最外层的实例
         View taskView;
 
@@ -87,6 +83,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             finishBox = itemView.findViewById(R.id.check_box);
 
         }
+
+
     }
 
     @Override
@@ -96,5 +94,17 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
 
     public void setTaskList(List<Task> taskList) {
         this.taskList = taskList;
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(View view, int position);
+
+        void onItemLongClick(View view, int position);
+    }
+
+    private TaskAdapter.OnItemClickListener mOnItemClickListener = null;
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        mOnItemClickListener = listener;
     }
 }

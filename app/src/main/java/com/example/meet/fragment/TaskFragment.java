@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.BitmapDrawable;
@@ -38,6 +39,7 @@ import android.widget.Toolbar;
 
 
 import com.example.meet.R;
+import com.example.meet.activity.EditTaskActivity;
 import com.example.meet.activity.MainActivity;
 import com.example.meet.bean.Task;
 import com.example.meet.bean.TaskLab;
@@ -97,7 +99,7 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_task, container, false);
         initCalenderView(rootView);
@@ -105,6 +107,7 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
         addFab = rootView.findViewById(R.id.fab);
         addFab.setOnClickListener(this);
+
         //Calendar点击事件
         mCalenderView.setOnCalendarSelectListener(new CalendarView.OnCalendarSelectListener() {
             @Override
@@ -126,6 +129,21 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
 
             }
         });
+
+
+        //点击编辑、长按删除
+       mTaskAdapter.setOnItemClickListener(new TaskAdapter.OnItemClickListener() {
+           @Override
+           public void onItemClick(View view, int position) {
+               Intent intent = new Intent(mActivity,EditTaskActivity.class);
+               startActivity(intent);
+           }
+
+           @Override
+           public void onItemLongClick(View view, int position) {
+
+           }
+       });
         return rootView;
 
     }
@@ -137,6 +155,7 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
     }
 
 
+    //线程查找数据库
     private Runnable updateUIRunnable = new Runnable() {
         @Override
         public void run() {

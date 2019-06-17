@@ -1,9 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activity.EditTaskActivity">
 
-</android.support.constraint.ConstraintLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:id="@+id/date"
+        android:background="@drawable/edit_task"
+        android:layout_margin="20dp" />
+
+      <EditText
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:layout_marginTop="50dp"
+      android:layout_marginLeft="20dp"
+      android:layout_marginRight="20dp"
+          android:layout_marginBottom="20dp"
+          android:background="@drawable/add_task"
+          android:inputType="textMultiLine"
+          android:id="@+id/task_edit"
+          />
+
+
+  </RelativeLayout>
