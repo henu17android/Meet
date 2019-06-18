@@ -2,6 +2,8 @@ package com.example.meet;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -17,16 +19,18 @@ import com.example.meet.fragment.SettingFragment;
 
 public class LoginActivity extends AppCompatActivity {
     private TextView tv_main_title;//标题
-    private TextView tv_back,tv_register,tv_find_psw;//返回键,显示的注册，找回密码
+    private table dbHelper;
+    private TextView tv_back,tv_register;//返回键,显示的注册，找回密码
 
 
     private Button btn_login;//登录按钮
-    private String userName,psw,spPsw;//获取的用户名，密码，加密密码
+    private String userName,psw;//获取的用户名，密码，加密密码
     private EditText et_user_name,et_psw;//编辑框
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        dbHelper = new table(this,"UserStore.db",null,1);
         //设置此界面为竖屏
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         init();
@@ -57,7 +61,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //为了跳转到注册界面，并实现注册功能
                 Intent intent=new Intent(LoginActivity.this,RegisterActivity.class);
-                startActivityForResult(intent, 1);
+                startActivity(intent);
             }
         });
         //找回密码控件的点击事件
@@ -68,26 +72,27 @@ public class LoginActivity extends AppCompatActivity {
                 //开始登录，获取用户名和密码 getText().toString().trim();
                 userName=et_user_name.getText().toString().trim();
                 psw=et_psw.getText().toString().trim();
-                Intent intent=new Intent(LoginActivity.this,MainActivity.class);
-                startActivityForResult(intent, 1);
 
-
-
-                // 定义方法 readPsw为了读取用户名，得到密码
-
-                // TextUtils.isEmpty
                 if(TextUtils.isEmpty(userName)){
                     Toast.makeText(LoginActivity.this, "请输入用户名", Toast.LENGTH_SHORT).show();
                     return;
                 }else if(TextUtils.isEmpty(psw)){
                     Toast.makeText(LoginActivity.this, "请输入密码", Toast.LENGTH_SHORT).show();
                     return;
-                    // md5Psw.equals(); 判断，输入的密码加密后，是否与保存在SharedPreferences中一致
+
                 }
 
-                else{
-                    Toast.makeText(LoginActivity.this, "此用户名不存在", Toast.LENGTH_SHORT).show();
+               else if (login(userName,psw)) {
+                    Toast.makeText(LoginActivity.this, "登陆成功", Toast.LENGTH_SHORT).show();
+                    Intent intent=new Intent(LoginActivity.this,MainActivity.class);
+                    startActivity(intent);
+                    return;
                 }
+                else {
+                    Toast.makeText(LoginActivity.this, "登陆失败", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
             }
         });
     }
@@ -99,6 +104,17 @@ public class LoginActivity extends AppCompatActivity {
         //sp.getString() userName, "";
         return sp.getString(userName , "");
     }
+    public boolean login(String username,String password) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        String sql = "select * from userData where name=? and password=?";
+        Cursor cursor = db.rawQuery(sql, new String[] {username, password});
+        if (cursor.moveToFirst()) {
+            cursor.close();
+            return true;
+        }else{
+        return false;}
+    }
+
     /**
      *保存登录状态和登录用户名到SharedPreferences中
      */
@@ -109,26 +125,12 @@ public class LoginActivity extends AppCompatActivity {
      * @param resultCode 结果码
      * @param data 数据
      */
-    @Override
+
     //显示数据， onActivityResult
     //startActivityForResult(intent, 1); 从注册界面中获取数据
     //int requestCode , int resultCode , Intent data
     // LoginActivity -> startActivityForResult -> onActivityResult();
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        //super.onActivityResult(requestCode, resultCode, data);
-        super.onActivityResult(requestCode, resultCode, data);
-        if(data!=null){
-            //是获取注册界面回传过来的用户名
-            // getExtra().getString("***");
-            String userName=data.getStringExtra("userName");
-            if(!TextUtils.isEmpty(userName)){
-                //设置用户名到 et_user_name 控件
-                et_user_name.setText(userName);
-                //et_user_name控件的setSelection()方法来设置光标位置
-                et_user_name.setSelection(userName.length());
-            }
-        }
-    }
+
 }
 
 

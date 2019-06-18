@@ -1,8 +1,11 @@
 package com.example.meet;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class RegisterActivity extends AppCompatActivity {
+    private table dbHelper;
     private TextView tv_main_title;//标题
     private TextView tv_back;//返回按钮
     private Button btn_register;//注册按钮
@@ -34,7 +38,9 @@ public class RegisterActivity extends AppCompatActivity {
         //设置此界面为竖屏
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         init();
+        dbHelper = new table(this,"UserStore.db",null,1);
     }
+
 
     private void init() {
         //从main_title_bar.xml 页面布局中获取对应的UI控件
@@ -63,70 +69,69 @@ public class RegisterActivity extends AppCompatActivity {
                 //获取输入在相应控件中的字符串
                 getEditString();
                 //判断输入框内容
-                if(TextUtils.isEmpty(userName)){
+                if (TextUtils.isEmpty(userName)) {
                     Toast.makeText(RegisterActivity.this, "请输入用户名", Toast.LENGTH_SHORT).show();
                     return;
-                }else if(TextUtils.isEmpty(psw)){
+                } else if (TextUtils.isEmpty(psw)) {
                     Toast.makeText(RegisterActivity.this, "请输入密码", Toast.LENGTH_SHORT).show();
                     return;
-                }else if(TextUtils.isEmpty(pswAgain)){
+                } else if (TextUtils.isEmpty(pswAgain)) {
                     Toast.makeText(RegisterActivity.this, "请再次输入密码", Toast.LENGTH_SHORT).show();
                     return;
-                }else if(!psw.equals(pswAgain)){
+                } else if (!psw.equals(pswAgain)) {
                     Toast.makeText(RegisterActivity.this, "输入两次的密码不一样", Toast.LENGTH_SHORT).show();
-                    return;
-                    /**
-                     *从SharedPreferences中读取输入的用户名，判断SharedPreferences中是否有此用户名
-                     */
-                }else if(isExistUserName(userName)){
-                    Toast.makeText(RegisterActivity.this, "此账户名已经存在", Toast.LENGTH_SHORT).show();
-                    return;
-                }else{
-                    Toast.makeText(RegisterActivity.this, "注册成功", Toast.LENGTH_SHORT).show();
-                    //把账号、密码和账号标识保存到sp里面
-                    /**
-                     * 保存账号和密码到SharedPreferences中
-                     */
+                    return;}
+                    else if (psw.length()<6) {
+                        Toast.makeText(RegisterActivity.this, "密码不少六位", Toast.LENGTH_SHORT).show();
+                        return;
 
-                    //注册成功后把账号传递到LoginActivity.java中
-                    // 返回值到loginActivity显示
-                    Intent data = new Intent();
-                    data.putExtra("userName", userName);
-                    setResult(RESULT_OK, data);
-                    //RESULT_OK为Activity系统常量，状态码为-1，
-                    // 表示此页面下的内容操作成功将data返回到上一页面，如果是用back返回过去的则不存在用setResult传递data值
-                    RegisterActivity.this.finish();
-                }
-            }
+                } else if (CheckIsDataAlreadyInDBorNot(userName)) {
+                    Toast.makeText(RegisterActivity.this, "该用户已被注册", Toast.LENGTH_SHORT).show();
+                } else
+                    if (register(userName, psw)) {
+                        Toast.makeText(RegisterActivity.this, "注册成功", Toast.LENGTH_SHORT).show();
+                        Intent data = new Intent();
+                        Intent intent=new Intent(RegisterActivity.this,LoginActivity.class);
+                        startActivity(intent);
+                        // 表示此页面下的内容操作成功将data返回到上一页面，如果是用back返回过去的则不存在用setResult传递data值
+                    }
+                    }
+
+
+
+
+
+            //注册成功后把账号传递到LoginActivity.java中
+            // 返回值到loginActivity显示
+
+
         });
     }
-    /**
-     * 获取控件中的字符串
-     */
+    public boolean register(String username,String password)
+    { SQLiteDatabase db= dbHelper.getWritableDatabase();
+
+     ContentValues values=new ContentValues();
+     values.put("name",username);
+     values.put("password",password);
+     db.insert("userData",null,values);
+     db.close();
+     //db.execSQL("insert into userData (name,password) values (?,?)",new String[]{username,password});
+        return true;}
+    public boolean CheckIsDataAlreadyInDBorNot(String value)
+        { SQLiteDatabase db=dbHelper.getWritableDatabase();
+        String Query = "Select * from userData where name =?";
+        Cursor cursor = db.rawQuery(Query,new String[] { value });
+        if (cursor.getCount()>0){ cursor.close(); return true; }
+        else {
+        cursor.close(); return false; }}
+
+
+
     private void getEditString(){
         userName=et_user_name.getText().toString().trim();
         psw=et_psw.getText().toString().trim();
         pswAgain=et_psw_again.getText().toString().trim();
     }
-    /**
-     * 从SharedPreferences中读取输入的用户名，判断SharedPreferences中是否有此用户名
-     */
-    private boolean isExistUserName(String userName){
-        boolean has_userName=false;
-        //mode_private SharedPreferences sp = getSharedPreferences( );
-        // "loginInfo", MODE_PRIVATE
-        SharedPreferences sp=getSharedPreferences("loginInfo", MODE_PRIVATE);
-        //获取密码
-        String spPsw=sp.getString(userName, "");//传入用户名获取密码
-        //如果密码不为空则确实保存过这个用户名
-        if(!TextUtils.isEmpty(spPsw)) {
-            has_userName=true;
-        }
-        return has_userName;
-    }
-    /**
-     * 保存账号和密码到SharedPreferences中SharedPreferences
-     */
 
-}
+        }
 
