@@ -9,6 +9,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -51,6 +53,7 @@ import com.haibin.calendarview.CalendarView;
 import org.litepal.LitePal;
 import org.w3c.dom.Text;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -78,7 +81,7 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
     private FloatingActionButton addFab;
     private List<Task> mTaskList;
     private TaskAdapter mTaskAdapter;
-    private int mSelectTime;
+    private String mSelectTime;
     private ExecutorService mSingleThreadPool = Executors.newSingleThreadExecutor();
     private Handler mHandler = new Handler();
     private OnFragmentInteractionListener mListener;
@@ -122,7 +125,8 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
                 mTextMonthDay.setText(calendar.getMonth() + "月" + calendar.getDay() + "日");
                 mTextLunar.setText(calendar.getLunar());
                 mYear = calendar.getYear();
-                mSelectTime = mYear * 365 + calendar.getMonth() * 31 + calendar.getDay();
+                mSelectTime = mYear+"-"+calendar.getMonth()+"-"+calendar.getDay();
+
                 Log.d(TAG, "mSelectTime:" + mSelectTime);
                 //查找选中日期下的任务列表
                 mSingleThreadPool.execute(updateUIRunnable);
@@ -154,14 +158,40 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
                     //点击编辑、长按删除
                     mTaskAdapter.setOnItemClickListener(new TaskAdapter.OnItemClickListener() {
                         @Override
-                        public void onItemClick(View view, int position) {
+                        public void onItemClick(TaskAdapter.ViewHolder vh, int position) {
+                            //点击进入编辑页面
+                            Task task = mTaskList.get(position);
                             Intent intent = new Intent(mActivity,EditTaskActivity.class);
+                            intent.putExtra("content",task.getContent());
+                            intent.putExtra("toDoTime",task.getToDoTime());
+                            intent.putExtra("taskId",task.getId());
                             startActivity(intent);
                         }
 
                         @Override
-                        public void onItemLongClick(View view, int position) {
+                        public void onItemLongClick(TaskAdapter.ViewHolder vh, int position) {
 
+                        }
+
+                        @Override
+                        public void onCheckBoxClick(TaskAdapter.ViewHolder vh, int position, boolean isChecked) {
+                            Log.d(TAG,"listSize"+"--- "+mTaskList.size());
+                            Log.d(TAG,"onClickedPosition"+"--- "+position);
+//                            Task task = mTaskList.get(position);
+//                            task.setFinish(isChecked);
+                            TextView contentView = vh.contentView;
+                            if (isChecked) {
+//                                mTaskAdapter.removeTask(position);
+//                                mTaskAdapter.addTask(task);
+                                contentView.setPaintFlags(contentView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                                contentView.setTextColor(Color.rgb(192,192,192));
+                            } else {
+                                contentView.setPaintFlags(contentView.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+                                contentView.setTextColor(Color.BLACK);
+                            }
+                            for(Task t : mTaskList) {
+                                Log.d(TAG,"listContent"+"--- "+t.getContent());
+                            }
                         }
                     });
                     mRecyclerView.setAdapter(mTaskAdapter);
@@ -236,7 +266,8 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
         mTextMonthDay.setText(mCalenderView.getCurMonth() + "月" + mCalenderView.getCurDay() + "日");
         mTextLunar.setText("今日");
         mTextCurrentDay.setText(String.valueOf(mCalenderView.getCurDay()));
-        mSelectTime = mCalenderView.getCurYear() * 365 + mCalenderView.getCurMonth() * 31 + mCalenderView.getCurDay();
+
+        mSelectTime = mCalenderView.getCurYear()  +"-"+ mCalenderView.getCurMonth()+"-"+ mCalenderView.getCurDay();
         Log.d(TAG, "today:-" + mSelectTime);
     }
 
