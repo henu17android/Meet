@@ -9,13 +9,17 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 
+import android.support.annotation.ColorInt;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -154,14 +158,35 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
                     //点击编辑、长按删除
                     mTaskAdapter.setOnItemClickListener(new TaskAdapter.OnItemClickListener() {
                         @Override
-                        public void onItemClick(View view, int position) {
-                            Intent intent = new Intent(mActivity,EditTaskActivity.class);
+                        public void onItemClick(TaskAdapter.ViewHolder vh, int position) {
+                            Intent intent = new Intent(mActivity, EditTaskActivity.class);
                             startActivity(intent);
                         }
 
                         @Override
-                        public void onItemLongClick(View view, int position) {
+                        public void onItemLongClick(TaskAdapter.ViewHolder vh, int position) {
 
+                        }
+
+                        @Override
+                        public void onCheckBoxClick(TaskAdapter.ViewHolder vh, int position, boolean isChecked) {
+                            Log.d(TAG,"listSize"+"--- "+mTaskList.size());
+                            Log.d(TAG,"onClickedPosition"+"--- "+position);
+//                            Task task = mTaskList.get(position);
+//                            task.setFinish(isChecked);
+                            TextView contentView = vh.contentView;
+                            if (isChecked) {
+//                                mTaskAdapter.removeTask(position);
+//                                mTaskAdapter.addTask(task);
+                                contentView.setPaintFlags(contentView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                                contentView.setTextColor(Color.rgb(192,192,192));
+                            } else {
+                                contentView.setPaintFlags(contentView.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+                                contentView.setTextColor(Color.BLACK);
+                            }
+                            for(Task t : mTaskList) {
+                                Log.d(TAG,"listContent"+"--- "+t.getContent());
+                            }
                         }
                     });
                     mRecyclerView.setAdapter(mTaskAdapter);

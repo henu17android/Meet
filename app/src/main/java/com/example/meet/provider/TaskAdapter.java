@@ -2,6 +2,7 @@ package com.example.meet.provider;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -52,27 +53,30 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         viewHolder.finishBox.setChecked(task.isFinish());
 
         if (mOnItemClickListener != null) {
+            //点击了内容
             viewHolder.contentView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mOnItemClickListener.onItemClick(viewHolder.itemView,position);
+                    mOnItemClickListener.onItemClick(viewHolder,position);
+                }
+            });
+            //点击了复选框
+            viewHolder.finishBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    task.setFinish(isChecked);
+                    TaskLab.get(mContext).updateTask(task);
+                    mOnItemClickListener.onCheckBoxClick(viewHolder,position,isChecked);
                 }
             });
         }
-
-        viewHolder.finishBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                task.setFinish(isChecked);
-                TaskLab.get(mContext).updateTask(task);
-            }
-        });
     }
 
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView contentView;
-        private CheckBox finishBox;
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        public TextView contentView;
+        public CheckBox finishBox;
+        public CardView cardView;
         //保存子项最外层的实例
         View taskView;
 
@@ -81,7 +85,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
             taskView = itemView;
             contentView = itemView.findViewById(R.id.taskContent);
             finishBox = itemView.findViewById(R.id.check_box);
-
+            cardView = itemView.findViewById(R.id.task_card_view);
         }
 
 
@@ -97,14 +101,26 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
     }
 
     public interface OnItemClickListener {
-        void onItemClick(View view, int position);
+        void onItemClick(ViewHolder vh, int position);
 
-        void onItemLongClick(View view, int position);
+        void onItemLongClick(ViewHolder vh, int position);
+
+        void onCheckBoxClick(ViewHolder vh,int position,boolean isChecked);
     }
 
     private TaskAdapter.OnItemClickListener mOnItemClickListener = null;
 
     public void setOnItemClickListener(OnItemClickListener listener) {
         mOnItemClickListener = listener;
+    }
+
+    public void addTask(Task task) {
+        taskList.add(task);
+        notifyItemInserted(getItemCount()-1);
+    }
+
+    public void removeTask(int position) {
+        taskList.remove(position);
+        notifyItemRemoved(position);
     }
 }
