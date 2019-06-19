@@ -57,8 +57,8 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
 
         //隐藏系统标题栏
-        //ActionBar actionBar = getSupportActionBar();
-        //actionBar.hide();
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.hide();
 
         initView();
         LitePal.initialize(this);

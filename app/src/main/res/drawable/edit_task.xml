@@ -2,13 +2,13 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
    <item>
        <shape>
-           <solid android:color="@color/colorAccent"/>
+           <solid android:color="@color/divideLine"/>
        </shape>
    </item>
 
     <item android:bottom="2dp">
         <shape>
-            <solid android:color="#ffffff"/>
+            <solid android:color="#FBFBFB"/>
         </shape>
     </item>
 </layer-list>

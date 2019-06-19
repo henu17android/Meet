@@ -3,5 +3,6 @@
     <color name="colorPrimary">#94A3F4</color>
     <color name="colorPrimaryDark">#6A5ACD</color>
     <color name="colorAccent">#F8931D</color>
-    <color name="transparent">#50000000</color>
+    <color name="divideLine">#AAAAAA</color>
+    <color name="background">#FFFFFF</color>
 </resources>
