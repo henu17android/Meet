@@ -1,14 +1,20 @@
 package com.example.meet.fragment;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.meet.R;
+import com.example.meet.activity.AboutusActivity;
+import com.example.meet.activity.HelpActivity;
 import com.example.meet.activity.MainActivity;
 
 
@@ -21,9 +27,14 @@ public class SettingFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-
+    private TextView aboutus;
+    private  TextView Help;
+    private  TextView Share;
+    private TextView MessageCenter;
+    private Button Login;
+    private  Button Exit;
     private OnFragmentInteractionListener mListener;
-
+     View rootview;
     public SettingFragment() {
         // Required empty public constructor
     }
@@ -53,13 +64,17 @@ public class SettingFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_setting, container, false);
+
+                 rootview=inflater.inflate(R.layout.fragment_setting, container, false);
+        initView(rootview);
+                 return  rootview;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -81,7 +96,24 @@ public class SettingFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
-
+    private void initView(View view){
+        aboutus=rootview.findViewById(R.id.aboutus);
+        Help=rootview.findViewById(R.id.Help);
+        Help.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(getContext(),HelpActivity.class);
+                startActivity(intent);
+            }
+        });
+        aboutus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent =new Intent(getContext(),AboutusActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated

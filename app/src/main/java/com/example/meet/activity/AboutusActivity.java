@@ -5,11 +5,11 @@ import android.os.Bundle;
 
 import com.example.meet.R;
 
-public class EditTaskActivity extends AppCompatActivity {
+public class AboutusActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_task);
+        setContentView(R.layout.activity_aboutus);
     }
 }
