@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
@@ -27,6 +28,14 @@ public class EditTaskActivity extends AppCompatActivity implements DatePickerFra
     private Date mSelectDate;
     private int taskId;
 
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.finish_edit :
+
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
