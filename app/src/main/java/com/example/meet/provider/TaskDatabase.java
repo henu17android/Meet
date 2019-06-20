@@ -110,7 +110,7 @@ public class TaskDatabase  {
         task.setId(cursor.getInt(TaskColumns._ID_INDEX));
         task.setContent(cursor.getString(TaskColumns.TASK_CONTENT_INDEX));
         task.setCreateTime(cursor.getLong(TaskColumns.CREATE_TIME_INDEX));
-        task.setToDoTime(cursor.getLong(TaskColumns.TO_DO_TIME_INDEX));
+        task.setToDoTime(cursor.getString(TaskColumns.TO_DO_TIME_INDEX));
         boolean isFinish = cursor.getLong(TaskColumns.IS_FINISH_INDEX) > 0;
         task.setFinish(isFinish);
         cursor.close();
@@ -127,7 +127,7 @@ public class TaskDatabase  {
             task.setId(cursor.getInt(TaskColumns._ID_INDEX));
             task.setContent(cursor.getString(TaskColumns.TASK_CONTENT_INDEX));
             task.setCreateTime(cursor.getLong(TaskColumns.CREATE_TIME_INDEX));
-            task.setToDoTime(cursor.getLong(TaskColumns.TO_DO_TIME_INDEX));
+            task.setToDoTime(cursor.getString(TaskColumns.TO_DO_TIME_INDEX));
             boolean isFinish = cursor.getLong(TaskColumns.IS_FINISH_INDEX) > 0;
             task.setFinish(isFinish);
             taskList.add(task);

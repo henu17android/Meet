@@ -6,8 +6,11 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -38,6 +41,7 @@ import android.widget.Toolbar;
 
 
 import com.example.meet.R;
+import com.example.meet.activity.EditTaskActivity;
 import com.example.meet.activity.MainActivity;
 import com.example.meet.bean.Task;
 import com.example.meet.bean.TaskLab;
@@ -49,6 +53,7 @@ import com.haibin.calendarview.CalendarView;
 import org.litepal.LitePal;
 import org.w3c.dom.Text;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -76,7 +81,7 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
     private FloatingActionButton addFab;
     private List<Task> mTaskList;
     private TaskAdapter mTaskAdapter;
-    private int mSelectTime;
+    private String mSelectTime;
     private ExecutorService mSingleThreadPool = Executors.newSingleThreadExecutor();
     private Handler mHandler = new Handler();
     private OnFragmentInteractionListener mListener;
@@ -97,7 +102,7 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_task, container, false);
         initCalenderView(rootView);
@@ -105,6 +110,7 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
         addFab = rootView.findViewById(R.id.fab);
         addFab.setOnClickListener(this);
+
         //Calendar点击事件
         mCalenderView.setOnCalendarSelectListener(new CalendarView.OnCalendarSelectListener() {
             @Override
@@ -119,13 +125,15 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
                 mTextMonthDay.setText(calendar.getMonth() + "月" + calendar.getDay() + "日");
                 mTextLunar.setText(calendar.getLunar());
                 mYear = calendar.getYear();
-                mSelectTime = mYear * 365 + calendar.getMonth() * 31 + calendar.getDay();
+                mSelectTime = mYear+"-"+calendar.getMonth()+"-"+calendar.getDay();
+
                 Log.d(TAG, "mSelectTime:" + mSelectTime);
                 //查找选中日期下的任务列表
                 mSingleThreadPool.execute(updateUIRunnable);
 
             }
         });
+
         return rootView;
 
     }
@@ -137,6 +145,7 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
     }
 
 
+    //线程查找数据库
     private Runnable updateUIRunnable = new Runnable() {
         @Override
         public void run() {
@@ -146,6 +155,43 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
                 public void run() {
                     mTaskAdapter = null;
                     mTaskAdapter = new TaskAdapter(mTaskList, getActivity());
+                    //点击编辑、长按删除
+                    mTaskAdapter.setOnItemClickListener(new TaskAdapter.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(TaskAdapter.ViewHolder vh, int position) {
+                            //点击进入编辑页面
+                            Task task = mTaskList.get(position);
+                            Intent intent = new Intent(mActivity,EditTaskActivity.class);
+                            intent.putExtra("taskId",task.getId());
+                            startActivity(intent);
+                        }
+
+                        @Override
+                        public void onItemLongClick(TaskAdapter.ViewHolder vh, int position) {
+
+                        }
+
+                        @Override
+                        public void onCheckBoxClick(TaskAdapter.ViewHolder vh, int position, boolean isChecked) {
+                            Log.d(TAG,"listSize"+"--- "+mTaskList.size());
+                            Log.d(TAG,"onClickedPosition"+"--- "+position);
+//                            Task task = mTaskList.get(position);
+//                            task.setFinish(isChecked);
+                            TextView contentView = vh.contentView;
+                            if (isChecked) {
+//                                mTaskAdapter.removeTask(position);
+//                                mTaskAdapter.addTask(task);
+                                contentView.setPaintFlags(contentView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                                contentView.setTextColor(Color.rgb(192,192,192));
+                            } else {
+                                contentView.setPaintFlags(contentView.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+                                contentView.setTextColor(Color.BLACK);
+                            }
+                            for(Task t : mTaskList) {
+                                Log.d(TAG,"listContent"+"--- "+t.getContent());
+                            }
+                        }
+                    });
                     mRecyclerView.setAdapter(mTaskAdapter);
 
                 }
@@ -218,7 +264,8 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
         mTextMonthDay.setText(mCalenderView.getCurMonth() + "月" + mCalenderView.getCurDay() + "日");
         mTextLunar.setText("今日");
         mTextCurrentDay.setText(String.valueOf(mCalenderView.getCurDay()));
-        mSelectTime = mCalenderView.getCurYear() * 365 + mCalenderView.getCurMonth() * 31 + mCalenderView.getCurDay();
+
+        mSelectTime = mCalenderView.getCurYear()  +"-"+ mCalenderView.getCurMonth()+"-"+ mCalenderView.getCurDay();
         Log.d(TAG, "today:-" + mSelectTime);
     }
 

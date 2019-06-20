@@ -23,7 +23,7 @@ import org.litepal.LitePal;
 public class MainActivity extends AppCompatActivity implements
         CalendarView.OnYearChangeListener,//宿主Activity实现接口，在fragment中实例化
         CalendarView.OnCalendarSelectListener,
-        NavHelper.OnTabChangeListener {
+        NavHelper.OnTabChangeListener{
 
     private BottomNavigationView navigationView;
     private FragmentManager mFragmentManager;
@@ -45,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements
                 case R.id.navigation_set:
                     mNavHelper.performClickMenu(R.id.navigation_set);
                     return true;
+                default:
+                    break;
             }
             return false;
         }
@@ -57,9 +59,8 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
 
         //隐藏系统标题栏
-        //ActionBar actionBar = getSupportActionBar();
-        //actionBar.hide();
-
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.hide();
         initView();
         LitePal.initialize(this);
 

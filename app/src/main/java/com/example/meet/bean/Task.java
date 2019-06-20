@@ -11,7 +11,7 @@ public class Task extends LitePalSupport {
     private int id;
     private String content; //任务内容
     private boolean isFinish = false;
-    private long toDoTime;
+    private String toDoTime;
     private long createTime;
 
     public Task(String content) {
@@ -47,11 +47,11 @@ public class Task extends LitePalSupport {
         isFinish = finish;
     }
 
-    public long getToDoTime() {
+    public String getToDoTime() {
         return toDoTime;
     }
 
-    public void setToDoTime(long toDoTime) {
+    public void setToDoTime(String toDoTime) {
         this.toDoTime = toDoTime;
     }
 
