@@ -45,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements
                 case R.id.navigation_set:
                     mNavHelper.performClickMenu(R.id.navigation_set);
                     return true;
+                default:
+                    break;
             }
             return false;
         }
@@ -59,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements
         //隐藏系统标题栏
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
-
         initView();
         LitePal.initialize(this);
 

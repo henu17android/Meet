@@ -49,6 +49,10 @@ public class TaskLab {
         task1.save();
     }
 
+    public Task findTaskById(int id) {
+        return LitePal.find(Task.class,id );
+    }
+
     public List<Task> findAll() {
         return LitePal.findAll(Task.class);
     }

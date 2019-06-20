@@ -162,8 +162,6 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
                             //点击进入编辑页面
                             Task task = mTaskList.get(position);
                             Intent intent = new Intent(mActivity,EditTaskActivity.class);
-                            intent.putExtra("content",task.getContent());
-                            intent.putExtra("toDoTime",task.getToDoTime());
                             intent.putExtra("taskId",task.getId());
                             startActivity(intent);
                         }
