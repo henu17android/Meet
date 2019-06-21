@@ -4,9 +4,13 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 
 import com.example.meet.R;
@@ -16,6 +20,8 @@ import com.example.meet.activity.MainActivity;
 public class ShareFragment extends Fragment {
 
     private MainActivity mActivity;
+    private WebView myWebview;
+    private View view;
 
 
     private static final String ARG_PARAM1 = "param1";
@@ -30,6 +36,7 @@ public class ShareFragment extends Fragment {
     public ShareFragment() {
         // Required empty public constructor
     }
+
 
     /**
      * Use this factory method to create a new instance of
@@ -50,19 +57,16 @@ public class ShareFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        view = inflater.inflate(R.layout.fragment_share, container, false);
+        super.onCreate(savedInstanceState);
+        myWebview = (WebView)view.findViewById(R.id.myWeb);
+        Log.e("ShareF",myWebview.toString());
+        myWebview.loadUrl("http://119.23.108.253:8085/");
+        myWebview.setWebViewClient(new WebViewClient());
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_share, container, false);
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -98,4 +102,7 @@ public class ShareFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+
+
 }
