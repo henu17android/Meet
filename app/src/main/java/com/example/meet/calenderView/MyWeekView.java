@@ -1,10 +1,12 @@
 package com.example.meet.calenderView;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 
+import com.example.meet.R;
 import com.haibin.calendarview.Calendar;
 import com.haibin.calendarview.WeekView;
 
@@ -17,12 +19,13 @@ public class MyWeekView extends WeekView {
     private Paint mNoneProgressPaint = new Paint();
     private int mRadius;
 
+    @SuppressLint("ResourceAsColor")
     public MyWeekView(Context context) {
         super(context);
         mProgressPaint.setAntiAlias(true);
         mProgressPaint.setStyle(Paint.Style.STROKE);
         mProgressPaint.setStrokeWidth(dipToPx(context,2.2f));
-        mProgressPaint.setColor(0xBB8A2BE2);
+        mProgressPaint.setColor(0xBBf54a00);
 
         mNoneProgressPaint.setAntiAlias(true);
         mNoneProgressPaint.setStyle(Paint.Style.STROKE);

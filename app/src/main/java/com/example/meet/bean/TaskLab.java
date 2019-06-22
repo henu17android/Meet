@@ -46,8 +46,11 @@ public class TaskLab {
         task1.setCreateTime(task.getCreateTime());
         task1.setFinish(task.isFinish());
         task1.setToDoTime(task.getToDoTime());
+        task1.setDetail(task.getDetail());
         task1.save();
     }
+
+
 
     public Task findTaskById(int id) {
         return LitePal.find(Task.class,id );

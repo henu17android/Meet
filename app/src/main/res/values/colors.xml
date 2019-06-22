@@ -7,4 +7,5 @@
     <color name="background">#FFFFFF</color>
     <color name="white">#FFFFFF</color>
     <color name="sliverWhite">#DCDCDC</color>
+    <color name="item_checked">#c0c0c0</color>
 </resources>
