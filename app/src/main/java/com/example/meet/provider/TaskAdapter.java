@@ -1,6 +1,8 @@
 package com.example.meet.provider;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Paint;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -23,6 +25,8 @@ import com.example.meet.bean.TaskLab;
 
 import java.util.List;
 
+import static com.example.meet.R.color.item_checked;
+
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
 
     private List<Task> taskList;
@@ -44,6 +48,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         return viewHolder;
     }
 
+    @SuppressLint("ResourceAsColor")
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder viewHolder, final int position) {
 
@@ -51,6 +56,11 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
         Log.d("onBindViewHolder", "" + (task == null) + "-" + task.getContent());
         viewHolder.contentView.setText(task.getContent());
         viewHolder.finishBox.setChecked(task.isFinish());
+
+        if (task.isFinish()) {
+            viewHolder.contentView.setPaintFlags(viewHolder.contentView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            viewHolder.contentView.setTextColor(R.color.item_checked);
+        }
 
         if (mOnItemClickListener != null) {
             //点击了内容

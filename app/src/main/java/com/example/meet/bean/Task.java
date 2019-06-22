@@ -13,6 +13,16 @@ public class Task extends LitePalSupport {
     private boolean isFinish = false;
     private String toDoTime;
     private long createTime;
+    private String detail;
+
+    public void setDetail(String detail) {
+        this.detail = detail;
+    }
+
+    public String getDetail() {
+
+        return detail;
+    }
 
     public Task(String content) {
         this.content = content;

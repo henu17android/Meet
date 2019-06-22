@@ -37,7 +37,7 @@ public class EditTaskActivity extends AppCompatActivity implements DatePickerFra
     private int mTaskId;
     private Task mTask;
     private Toolbar mToolbar;
-    
+    private EditText mTaskDetail;
     
 
     @Override
@@ -50,13 +50,20 @@ public class EditTaskActivity extends AppCompatActivity implements DatePickerFra
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);//返回父活动的箭头
         mShowDate = (TextView)findViewById(R.id.date);
         mTaskEditText = (EditText)findViewById(R.id.edit_task_activity_task_content);
+        mTaskDetail = (EditText)findViewById(R.id.task_detail);
 
         Intent intent = getIntent();
         mTaskId = intent.getIntExtra("taskId",0); //获取传过来的id
+        Log.d(TAG, "onCreate: taskID"+mTaskId);
         mTask = TaskLab.get(getApplicationContext()).findTaskById(mTaskId); //从数据库中根据id得到对应 Task
         mTaskEditText.setText(mTask.getContent());
         //将光标移至文字末尾
         mTaskEditText.setSelection(mTask.getContent().length());
+        mTaskDetail.setText(mTask.getDetail());
+        if (mTask.getDetail() != null){
+            mTaskDetail.setSelection(mTask.getDetail().length());
+        }
+
         mShowDate.setText(mTask.getToDoTime());
         //将传递的日期字符串转为date类型
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -78,7 +85,6 @@ public class EditTaskActivity extends AppCompatActivity implements DatePickerFra
             }
         });
 
-
     }
 
     @Override
@@ -91,10 +97,22 @@ public class EditTaskActivity extends AppCompatActivity implements DatePickerFra
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.share_task:
+            case R.id.edit_done:
+                Task task = new Task();
+                task.setId(mTaskId);
+                task.setContent(mTaskEditText.getText().toString());
+                task.setToDoTime(mShowDate.getText().toString());
+                Log.d(TAG, "onOptionsItemSelected: "+mShowDate.getText().toString());
+                task.setDetail(mTaskDetail.getText().toString());
+                TaskLab.get(EditTaskActivity.this).updateTask(task);
+                finish();
                 return true;
+
             case R.id.delete_task:
+                TaskLab.get(EditTaskActivity.this).deleteTaskById(mTaskId);
+                finish();
                 return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -108,6 +126,8 @@ public class EditTaskActivity extends AppCompatActivity implements DatePickerFra
         String newTime = sdf.format(mSelectDate);
         mShowDate.setText(newTime);
     }
+
+
 }
 
 

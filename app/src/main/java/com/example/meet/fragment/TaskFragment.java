@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 
+import android.renderscript.Sampler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -53,13 +54,22 @@ import com.haibin.calendarview.CalendarView;
 import org.litepal.LitePal;
 import org.w3c.dom.Text;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static com.example.meet.R.color.foreground_material_dark;
+import static com.example.meet.R.color.item_checked;
 
 
 public class TaskFragment extends Fragment implements View.OnClickListener {
@@ -85,6 +95,9 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
     private ExecutorService mSingleThreadPool = Executors.newSingleThreadExecutor();
     private Handler mHandler = new Handler();
     private OnFragmentInteractionListener mListener;
+    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private Map<String,Calendar> map = new HashMap<>();
+
 
     //当与activity建立联系时调用
     @Override
@@ -104,8 +117,13 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         rootView = inflater.inflate(R.layout.fragment_task, container, false);
-        initCalenderView(rootView);
+        try {
+            initCalenderView(rootView);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         mRecyclerView = rootView.findViewById(R.id.recyclerView);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity));
         addFab = rootView.findViewById(R.id.fab);
@@ -125,14 +143,19 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
                 mTextMonthDay.setText(calendar.getMonth() + "月" + calendar.getDay() + "日");
                 mTextLunar.setText(calendar.getLunar());
                 mYear = calendar.getYear();
-                mSelectTime = mYear+"-"+calendar.getMonth()+"-"+calendar.getDay();
-
+                String time = mYear+"-"+calendar.getMonth()+"-"+calendar.getDay() ;
+                try {
+                    mSelectTime = getmSelectTime(time);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
                 Log.d(TAG, "mSelectTime:" + mSelectTime);
                 //查找选中日期下的任务列表
                 mSingleThreadPool.execute(updateUIRunnable);
 
             }
         });
+
 
         return rootView;
 
@@ -171,22 +194,28 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
 
                         }
 
+                        @SuppressLint("ResourceAsColor")
                         @Override
                         public void onCheckBoxClick(TaskAdapter.ViewHolder vh, int position, boolean isChecked) {
                             Log.d(TAG,"listSize"+"--- "+mTaskList.size());
                             Log.d(TAG,"onClickedPosition"+"--- "+position);
-//                            Task task = mTaskList.get(position);
+                            Task task = mTaskList.get(position);
 //                            task.setFinish(isChecked);
                             TextView contentView = vh.contentView;
                             if (isChecked) {
 //                                mTaskAdapter.removeTask(position);
 //                                mTaskAdapter.addTask(task);
+                                task.setFinish(true);
                                 contentView.setPaintFlags(contentView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                                contentView.setTextColor(Color.rgb(192,192,192));
+                                contentView.setTextColor(R.color.item_checked);
+
+
                             } else {
+                                task.setFinish(false);
                                 contentView.setPaintFlags(contentView.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
                                 contentView.setTextColor(Color.BLACK);
                             }
+                            TaskLab.get(getActivity()).updateTask(task);
                             for(Task t : mTaskList) {
                                 Log.d(TAG,"listContent"+"--- "+t.getContent());
                             }
@@ -194,6 +223,7 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
                     });
                     mRecyclerView.setAdapter(mTaskAdapter);
 
+                    initCalenderDate();
                 }
             });
         }
@@ -221,7 +251,7 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
     /**
      * @param view 初始化月历视图
      */
-    private void initCalenderView(View view) {
+    private void initCalenderView(View view) throws ParseException {
         mTextMonthDay = view.findViewById(R.id.tv_month_day);
         mTextYear = view.findViewById(R.id.tv_year);
         mTextLunar = view.findViewById(R.id.tv_lunar);
@@ -265,7 +295,9 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
         mTextLunar.setText("今日");
         mTextCurrentDay.setText(String.valueOf(mCalenderView.getCurDay()));
 
-        mSelectTime = mCalenderView.getCurYear()  +"-"+ mCalenderView.getCurMonth()+"-"+ mCalenderView.getCurDay();
+        String time = mCalenderView.getCurYear()  +"-"+ mCalenderView.getCurMonth()+"-"+ mCalenderView.getCurDay();
+        mSelectTime = getmSelectTime(time);
+
         Log.d(TAG, "today:-" + mSelectTime);
     }
 
@@ -312,6 +344,7 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
                 task.setCreateTime(System.currentTimeMillis());
                 task.setToDoTime(mSelectTime);
                 TaskLab.get(getActivity()).addTask(task);
+                Log.d(TAG, "onClick: task:"+task.getToDoTime()+task.getContent());
                 mSingleThreadPool.execute(updateUIRunnable);
             }
         });
@@ -338,5 +371,62 @@ public class TaskFragment extends Fragment implements View.OnClickListener {
 
     }
 
+    //将选中日期转换
+    private String getmSelectTime(String calenderDate) throws ParseException {
+        Date date = simpleDateFormat.parse(calenderDate);
+        String selectDate = simpleDateFormat.format(date);
+        return selectDate;
+    }
 
+    // //绘制含有task的日期
+    private void initCalenderDate() {
+        //去重后任务日期集合
+        List<Task> tasks = LitePal.select("toDoTime").find(Task.class);
+        List<String> dates = new ArrayList<>();
+        for (Task t : tasks){
+            dates.add(t.getToDoTime());
+        }
+        LinkedHashSet<String> set = new LinkedHashSet<String>(dates.size());
+        set.addAll(dates);
+        dates.clear();
+        dates.addAll(set);
+
+        for (String ss : dates) {
+            String date[] = ss.split("-");
+            map.put(ss.replace("-",""), getSchemeCalendar(Integer.parseInt(date[0]),Integer.parseInt(date[1]),
+                    Integer.parseInt(date[2]),getProgress(ss)));
+        }
+
+        mCalenderView.setSchemeDate(map);
+    }
+
+    //计算完成进度
+    private String getProgress(String time) {
+        List<Task> tasks = LitePal.select("isFinish").where("toDoTime = ?",time ).find(Task.class);
+        Log.d(TAG, "getProgress: "+tasks.size());
+        int done = 0;
+        for (Task t : tasks) {
+            if (t.isFinish()){
+                done++;
+            }
+        }
+        String progress =String.valueOf(done * 100/tasks.size());
+        return progress;
+    }
+
+    /**
+     * @param mYear
+     * @param mMonth
+     * @param day
+     * @param progress   事务完成的进度
+     * @return
+     */
+    private Calendar getSchemeCalendar(int mYear,int mMonth,int day,String progress){
+        Calendar calendar = new Calendar();
+        calendar.setYear(mYear);
+        calendar.setMonth(mMonth);
+        calendar.setDay(day);
+        calendar.setScheme(progress);
+        return calendar;
+    }
 }

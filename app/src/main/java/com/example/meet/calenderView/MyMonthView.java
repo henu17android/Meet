@@ -1,10 +1,12 @@
 package com.example.meet.calenderView;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 
+import com.example.meet.R;
 import com.haibin.calendarview.Calendar;
 import com.haibin.calendarview.MonthView;
 
@@ -17,6 +19,7 @@ public class MyMonthView extends MonthView {
     private Paint mNoneProgressPaint = new Paint();
     private int mRadius;
 
+    @SuppressLint("ResourceAsColor")
     public MyMonthView(Context context) {
         super(context);
         //抗锯齿
@@ -24,7 +27,7 @@ public class MyMonthView extends MonthView {
         //只描边不填充
         mProgressPaint.setStyle(Paint.Style.STROKE);
         mProgressPaint.setStrokeWidth(dipToPx(context,2.2f));
-        mProgressPaint.setColor(0xBB8A2BE2);
+        mProgressPaint.setColor(0xBBf54a00);
 
         mNoneProgressPaint.setAntiAlias(true);
         mNoneProgressPaint.setStyle(Paint.Style.STROKE);
@@ -59,7 +62,7 @@ public class MyMonthView extends MonthView {
     @Override
     protected void onDrawScheme(Canvas canvas, Calendar calendar, int x, int y) {
         int cx = x + mItemWidth  /2;
-        int cy = mItemHeight /2;
+        int cy = y + mItemHeight /2;
 
         int angle = getAngle(Integer.parseInt(calendar.getScheme()));
         //确定绘制的范围
