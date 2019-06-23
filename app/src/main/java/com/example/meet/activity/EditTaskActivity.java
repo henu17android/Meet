@@ -104,7 +104,7 @@ public class EditTaskActivity extends AppCompatActivity implements DatePickerFra
                 task.setContent(mTaskEditText.getText().toString());
                 task.setToDoTime(mShowDate.getText().toString());
                 task.setDetail(mTaskDetail.getText().toString());
-                task.setFinish(task.isFinish());
+                task.setFinish(mTask.isFinish());
                 TaskLab.get(EditTaskActivity.this).updateTask(task);
                 finish();
                 return true;
