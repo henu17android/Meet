@@ -98,12 +98,13 @@ public class EditTaskActivity extends AppCompatActivity implements DatePickerFra
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.edit_done:
+                //数据库更新Task
                 Task task = new Task();
                 task.setId(mTaskId);
                 task.setContent(mTaskEditText.getText().toString());
                 task.setToDoTime(mShowDate.getText().toString());
-                Log.d(TAG, "onOptionsItemSelected: "+mShowDate.getText().toString());
                 task.setDetail(mTaskDetail.getText().toString());
+                task.setFinish(task.isFinish());
                 TaskLab.get(EditTaskActivity.this).updateTask(task);
                 finish();
                 return true;
