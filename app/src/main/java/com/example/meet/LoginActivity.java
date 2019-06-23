@@ -120,7 +120,7 @@ public class LoginActivity extends AppCompatActivity {
      */
 
     /**
-     * 注册成功的数据返回至此
+
      * @param requestCode 请求码
      * @param resultCode 结果码
      * @param data 数据

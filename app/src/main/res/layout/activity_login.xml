@@ -9,7 +9,7 @@
     <include layout="@layout/main_title_bar"></include>
     <!--显示头像，记得加入id iv_head -->
 
-    <!--输入框-->
+
     <EditText
         android:id="@+id/et_user_name"
         android:layout_width="fill_parent"
