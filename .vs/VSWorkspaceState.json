@@ -1,0 +1,17 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\.gradle",
+    "\\app",
+    "\\app\\src",
+    "\\app\\src\\main",
+    "\\app\\src\\main\\java",
+    "\\app\\src\\main\\java\\com",
+    "\\app\\src\\main\\java\\com\\example",
+    "\\app\\src\\main\\java\\com\\example\\meet",
+    "\\app\\src\\main\\java\\com\\example\\meet\\activity",
+    "\\app\\src\\main\\java\\com\\example\\meet\\helper"
+  ],
+  "SelectedNode": "\\app\\src\\main\\java\\com\\example\\meet\\LoginActivity.java",
+  "PreviewInSolutionExplorer": false
+}
