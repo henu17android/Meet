@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.ModelActivity">
+<LinearLayout
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:orientation="horizontal">
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:src="@drawable/night"/>
+        <TextView
+            android:id="@+id/ModelNight"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:text="夜间模式"
+            android:textSize="25sp"
+            android:layout_marginTop="15dp"
+            android:clickable="true"/>
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:orientation="horizontal">
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:src="@drawable/sun"/>
+        <TextView
+            android:id="@+id/ModelLight"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:text="日间模式"
+            android:textSize="25sp"
+            android:layout_marginTop="15dp"
+            android:clickable="true"/>
+
+    </LinearLayout>
+</LinearLayout>
+</android.support.constraint.ConstraintLayout>
